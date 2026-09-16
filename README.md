@@ -24,13 +24,7 @@ Also ein sehr überschaubares Projekt!
 
 ![Zero](Bilder/Piko_Inav.jpg)
 
-[Zur Lösungsbeschreibung](Doku/Lösung.md)
-
 [Zum physikalischen Aufbau](Doku/Aufbau.md)
-
-[Zur INAV Konfiguration](Doku/INAV.md)
-
-[Zur JETI Konfiguration](Doku/Jeti.md)
 
 [Zum USB MENUE des Konverters](Doku/Konverter.md)
 
