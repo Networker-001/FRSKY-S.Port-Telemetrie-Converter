@@ -18,9 +18,9 @@
 #### --- INAV TELEMETRIE-KONVERTER BEFEHLE ---
 > **HINWEIS:** Eingaben müssen mit Leerzeichen um das `=` erfolgen (z. B. `INAV = 1`).
 
-1. **Eingangs-Modus (iNav LTM an GPIO 5):**
-   * `INAV = 1` : Schaltet den Konverter-Modus ein
-   * `INAV = 2` : Schaltet den Konverter-Modus mit simulierten Festwerten ein
+1. **Eingangs-Modus (iNav LTM an GPIO 2):**
+   * `INAV = 3` : Schaltet den Konverter-Modus ein
+   * `INAV = 4` : Schaltet den Konverter-Modus mit simulierten Festwerten ein
    * `INAV = 0` : Deaktiviert den iNav-Eingang
 
 2. **Ausgangs-Protokoll (Auswahl für Empfänger):**
