@@ -1,13 +1,10 @@
-# Universal iNav LTM-zu-Telemetrie Konverter (RP2040)
+# FRSKY S.Port to HOTT, Multiplex, Jeti Exbus Converter (RP2040)
 
 Die hier vorgestellte Lösung ermöglicht die Übertragung von Telemetriewerten von 
-einem INAV Flugcontroller zu Multiplex oder Jeti REX Empfängern.
+S.Port Sensoren zu Multiplex oder Jeti REX Empfängern.
 
 Es wird ein kleines Zero Board (Waveshare RP2040-Zero) benötigt, das mit einem Widerstand zwischen
-dem INAV UART4 und dem Telemetrie-Eingang des Empfängers eingefügt wird.
-
-Die Steuerungsdaten vom Empfänger kommen über ein separates Kabel per SBUS zum
-UART2 des Flugkontrollers
+dem Telemetrie-Eingang des Empfängers und dem Telemetrieausgang des Sensors eingefügt wird.
 
 Zur Konfiguration des Boards wird dieses mit einem USB Kabel an einem PC angeschlossen.
 Es öffnet sich ein Windows-Explorerfenster. In dieses kopiert man die entsprechende 
@@ -26,8 +23,6 @@ Also ein sehr überschaubares Projekt!
 *Der Konverter auf dem Bild ist ein Musteraufbau, der eigentliche Konverter hat die Größe einer Briefmarke*
 
 ![Zero](Bilder/Piko_Inav.jpg)
-
-[Zum technischen Hintergrung](Doku/Hintergrund.md)
 
 [Zur Lösungsbeschreibung](Doku/Lösung.md)
 
