@@ -3,7 +3,7 @@
 Das System ist in drei logische Funktionsebenen unterteilt. Der RC-Empfänger bildet die obere Ebene, der RP2040-Konverter vermittelt in der mittleren Ebene, und der iNav Flight Controller schließt das System als breite Basis nach unten ab. Der Aufbau ist hardwareseitig fest auf GPIO 5 als LTM-Eingang fixiert.
 
 ### Physikalische Signal- und Verdrahtungs-Matrix (Top-Down)
-
+```text
 +--------------------------+
 
 |    RC-EMPFÄNGER          |
@@ -47,6 +47,7 @@ Das System ist in drei logische Funktionsebenen unterteilt. Der RC-Empfänger bi
 |     S.Port          |
 +---------------------+
 
+```
 
 ```text
 ========================================================================
