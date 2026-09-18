@@ -3,7 +3,7 @@
 
 ## Zur Konfiguration des Konverters über USB wird das Programm Coolterm empfohlen.
 
-1. Konverter per USB mit einem Laptop verbinden.
+1. Konverter mit gedrückter Boot-Taste per USB mit einem Laptop verbinden.
 2. Coolterm starten.
 3. Nach Drücken der Enter-Taste erscheint das originale openXsensor on RP 2040 Menü.
 
