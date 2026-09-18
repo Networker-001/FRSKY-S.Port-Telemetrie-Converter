@@ -14,7 +14,7 @@ Also ein sehr überschaubares Projekt!
 
 **[Diskussion auf RC-Network](https://www.rc-network.de/threads/jeti-inav-keinen-%C3%9Cbertragung-der-telemetriewerte.12125914/)**  
 
-![Sensoren](Bilder/Sensoren.jpg)
+![Sensoren](Bilder/Aufbau.jpg)
 
 ## Hier der erste Musteraufbau
 
