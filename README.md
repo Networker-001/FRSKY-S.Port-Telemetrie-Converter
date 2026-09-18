@@ -14,15 +14,9 @@ Also ein sehr überschaubares Projekt!
 
 **[Diskussion auf RC-Network](https://www.rc-network.de/threads/jeti-inav-keinen-%C3%9Cbertragung-der-telemetriewerte.12125914/)**  
 
+## Hier der erste Musteraufbau
 ![Sensoren](Bilder/Aufbau.jpg)
 
-## Hier der erste Musteraufbau
-
-![JETI REX mit Konverter und INAV Controller](Bilder/Musteraufbau.jpg)
-
-*Der Konverter auf dem Bild ist ein Musteraufbau, der eigentliche Konverter hat die Größe einer Briefmarke*
-
-![Zero](Bilder/Piko_Inav.jpg)
 
 [Zum physikalischen Aufbau](Doku/Aufbau.md)
 
