@@ -58,14 +58,14 @@ Das System ist in drei logische Funktionsebenen unterteilt. Der RC-Empfänger bi
 
                                 |             [ USB-C ]               | <-- USB-Anschluss oben
                                 +-------------------------------------+
-Empfänger [GND] --------------> | [GND]                          [5V] | <--- Sensor [5V]
-
-                                | [GND]                         [GND] | <--- Sensor [GND]
-Empfänger [TLM] <--- [1 kOhm] <-| [GP0] (TLM-Ausgang)           [3V3] |          
+Empfänger [TLM] <--- [1 kOhm] <-| [GP0] (TLM-Ausgang)            [5V] | <--- [5V]
 Hott, MPX
+                                | [GP1]                         [GND] | <--- [GND]
+ Sensor [TLM]-----------------> | [GP2]                         [3V3] |          
+                                |                              
                                 |                                     |
-                                | [GP1]                        [GP29] |
- Sensor [TLM]-----------------> | [GP2]          +-------+     [GP28] |
+                                |                              [GP29] |
+                                |                +-------+     [GP28] |
                                 | [GP3]          |  BOOT |     [GP27] |
                                 | [GP4]          +-------+     [GP26] |
                                 | [GP5]                        [GP15] |
@@ -86,6 +86,4 @@ Empfänger [TLM] <--- [1 kOhm] <--------+ Jeti
 
 
 
-
-   * **Logik-Masse:** Zwischen dem **GND**-Anschluss des Empfängers und dem Konverter wird eine separate, direkte Masseleitung gezogen, um den Potenzialausgleich des Telemetriekreises sicherzustellen.
 
