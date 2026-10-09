@@ -23,7 +23,7 @@
    * `conv = 0` : Deaktiviert den iNav-Eingang
           
 2. **Eingangs-PIN (FRSKY an GPIO 2-4):**
-   * `conv_pin= 3` : Schaltet den Konverter-PIN auf GPIO 3 
+   * `conv_pin = 3` : Schaltet den Konverter-PIN auf GPIO 3 
    
 3. **Ausgangs-Protokoll (Auswahl für Empfänger):**
    * `PROTOCOL = M` : Schaltet den Ausgang auf MULTIPLEX um
