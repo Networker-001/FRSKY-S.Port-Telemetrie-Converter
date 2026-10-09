@@ -10,33 +10,36 @@
 ## Folgende Einstellungen sind hilfreich:
 
 * **FV + Enter**: Anzeigen der empfangenen Telemetriewerte
-* **inav = 2**: Senden von Telemetriewerten zum Empfänger ohne INAV
+* **conv = 2**: Senden von Telemetriewerten zum Empfänger ohne INAV
 * **?**: Hilfefunktion
 
-### Befehlsübersicht der Einstellungen für INAV
+### Befehlsübersicht der Einstellungen für den Konverter
 
 #### --- INAV TELEMETRIE-KONVERTER BEFEHLE ---
-> **HINWEIS:** Eingaben müssen mit Leerzeichen um das `=` erfolgen (z. B. `INAV = 1`).
 
-1. **Eingangs-Modus (iNav LTM an GPIO 2):**
-   * `INAV = 3` : Schaltet den Konverter-Modus ein
-   * `INAV = 4` : Schaltet den Konverter-Modus mit simulierten Festwerten ein
-   * `INAV = 0` : Deaktiviert den iNav-Eingang
+1. **Eingangs-Modus (FRSKY an GPIO 2):**
+   * `conv= 3` : Schaltet den Konverter-Modus ein
+   * `conv = 4` : Schaltet den Konverter-Modus mit simulierten Festwerten ein
+   * `conv = 0` : Deaktiviert den iNav-Eingang
 
 2. **Ausgangs-Protokoll (Auswahl für Empfänger):**
    * `PROTOCOL = M` : Schaltet den Ausgang auf MULTIPLEX um
    * `PROTOCOL = E` : Schaltet den Ausgang auf JETI (EXBUS) um
    * `PROTOCOL = H` : Schaltet den Ausgang auf Graupner HoTT um
-
+   * `PROTOCOL = C` : Schaltet den Ausgang auf ELRS CRSF um
+   * 
 3. **Ausgangs-Port (Auswahl für Empfänger):**
-   * `TLM = 0`   : TLM Port für HoTT oder MULTIPLEX
+   * `TLM = 0`   : TLM Port für HoTT, MULTIPLEX oder CSRF
    * `TLM = 255` : TLM Port für Jeti
-   * `PRI = 255` : Port für HoTT oder MULTIPLEX
+   * `PRI = 255` : Port für HoTT, MULTIPLEX oder CSRF
    * `PRI = 9`   : Port für Jeti
 
 4. **Einstellungen dauerhaft sichern:**
    * `SAVE` : Speichert alle Parameter im Flash-Speicher des Pico
-
+     
+5. **Debuggen:**
+   * `FV`   : Zeigt empfangene Werte
+   * `DT=Y` : Zeigt empfangene Protokolle
 ***
 
 
