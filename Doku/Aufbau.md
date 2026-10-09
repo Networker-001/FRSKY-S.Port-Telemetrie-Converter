@@ -1,6 +1,6 @@
 ## 1. PHYSISCHER HARDWARE-AUFBAU & SYMBOLZEICHNUNG
 
-Das System ist in drei logische Funktionsebenen unterteilt. Der RC-Empfänger bildet die obere Ebene, der RP2040-Konverter vermittelt in der mittleren Ebene, und der FRSKYS ensor schließt das System als breite Basis nach unten ab. Der Aufbau ist hardwareseitig fest auf GPIO 2 als s.port Eingang fixiert.
+Das System ist in drei logische Funktionsebenen unterteilt. Der RC-Empfänger bildet die obere Ebene, der RP2040-Konverter vermittelt in der mittleren Ebene, und der FRSKYS ensor schließt das System als breite Basis nach unten ab. Der Aufbau ist hardwareseitig fest auf GPIO 2 als s.port Eingang fixiert. Kann aber zwischen 2,3,4 umgeschaltet werden!!
 
 ### Physikalische Signal- und Verdrahtungs-Matrix (Top-Down)
 ```text
@@ -9,7 +9,7 @@ Das System ist in drei logische Funktionsebenen unterteilt. Der RC-Empfänger bi
 |    RC-EMPFÄNGER          |
 | (z.B. Jeti / Multiplex)  |
 |                          |
-|  [+5V][GND][TLM]         |
+|  [+5V][GND][TLM]         | (CRSF = RX, Sonst = TX)
 +-----+---+---+------------+
 
       |   |   |
@@ -21,8 +21,8 @@ Das System ist in drei logische Funktionsebenen unterteilt. Der RC-Empfänger bi
       v   v   v
 +-----+---+---+-------+
 
-|  [+5V][GND][GPIO 0] |  MPX, Hott
-|            [GPIO 9] |   Jeti       
+|  [+5V][GND][GPIO 0] |  MPX, Hott, CRSF
+|            [GPIO 9] |  Jeti       
 
 |                     | 
 |                     |         
