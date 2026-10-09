@@ -6,8 +6,8 @@ S.Port Sensoren zu Multiplex oder Jeti REX Empfängern.
 Es wird ein kleines Zero Board (Waveshare RP2040-Zero) benötigt, das mit einem Widerstand zwischen
 dem Telemetrie-Eingang des Empfängers und dem Telemetrieausgang des Sensors eingefügt wird.
 
-Zur Konfiguration des Boards wird dieses mit einem USB Kabel an einem PC angeschlossen. 
-Es öffnet sich ein Windows-Explorerfenster. 
+Zur Konfiguration des Boards wird dieses mit einem USB Kabel an einem PC angeschlossen.  
+Es öffnet sich ein Windows-Explorerfenster.  
 In dieses kopiert man die entsprechende .uf2 Datei aus dem Ordner [Config](./Config) und das wars!
 
 
