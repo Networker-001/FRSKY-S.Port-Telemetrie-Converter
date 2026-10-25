@@ -1,33 +1,11 @@
-local translation = {
-  {"Sensor", "Sensor"},
-  {"SteigenFarbe", "Farbe Steigen"},
-  {"SinkenFarbe", "Farbe Sinken"},
-  {"RandAbstand", "Randabstand (px)"},
-  {"Groesse", "Groesse (1=100%, 2=80%, 3=60%)"},
-  {"Null-Zon 0.X", "Null-Zon 0.X"}
-}
+local lastError = nil
 
 local function create()
-  return {
-    sensor = nil,
-    climbColor = lcd.RGB(0, 255, 0),
-    sinkColor = lcd.RGB(255, 0, 0),
-    margin = 45,
-    sizeSelection = 2,
-    deadbandValue = 0
-  }
+  return { sensor = nil, climbColor = lcd.RGB(0, 255, 0), sinkColor = lcd.RGB(255, 0, 0), margin = 45, sizeSelection = 2, deadbandValue = 0 }
 end
 
-local function options(widget, category, line)
-  line:addSourceField(translation, function() return widget.sensor end, function(value) widget.sensor = value end)
-  line:addColorField(translation, function() return widget.climbColor end, function(value) widget.climbColor = value end)
-  line:addColorField(translation, function() return widget.sinkColor end, function(value) widget.sinkColor = value end)
-  line:addIntegerField(translation, function() return widget.margin end, function(value) widget.margin = value end, 0, 100)
-  line:addIntegerField(translation, function() return widget.sizeSelection end, function(value) widget.sizeSelection = value end, 1, 3)
-  line:addIntegerField(translation, function() return widget.deadbandValue end, function(value) widget.deadbandValue = value end, 0, 20)
-end
-
-local function read(widget)
+local function wakeup(widget)
+  lcd.invalidate()
 end
 
 local function drawVerticalSegment(x, y, w, h, skew)
@@ -76,21 +54,23 @@ local function drawDigit(x, y, digitWidth, digitHeight, num)
   if segMatrix[4] then drawHorizontalSegment(x + th + gap, y + digitHeight - th, hW - (th * 2) - (gap * 2), th, skewBot) end
 end
 
-local function paint(widget, w, h)
+local function paint(widget)
+  local w, h = lcd.getWindowSize()
+  
   if not widget.sensor then
     lcd.font(FONT_STD)
-    lcd.drawText(10, 10, "Bitte Sensor waehlen...")
+    lcd.drawText(20, 20, "Bitte Sensor waehlen...")
     return
   end
 
   local val = widget.sensor:value() or 0
-
-  local deadbandThreshold = widget.deadbandValue * 0.1
+  local deadbandValue = widget.deadbandValue or 0
+  local deadbandThreshold = deadbandValue * 0.1
 
   if val > deadbandThreshold then
-    lcd.color(widget.climbColor)
+    lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
   elseif val < -deadbandThreshold then
-    lcd.color(widget.sinkColor)
+    lcd.color(widget.sinkColor or lcd.RGB(255, 0, 0))
   else
     lcd.color(lcd.RGB(255, 255, 255))
   end
@@ -98,16 +78,16 @@ local function paint(widget, w, h)
   local valStr = string.format("%.1f", val)
   local len = string.len(valStr)
   
+  local sizeSelection = widget.sizeSelection or 2
   local scaleFactor = 1.0
-  if widget.sizeSelection == 2 then scaleFactor = 0.8
-  elseif widget.sizeSelection == 3 then scaleFactor = 0.6 end
+  if sizeSelection == 2 then scaleFactor = 0.8
+  elseif sizeSelection == 3 then scaleFactor = 0.6 end
   
   local digitHeight = math.floor((h - 20) * scaleFactor)
   local digitWidth = math.floor(digitHeight * 0.48) 
   local digitSpacing = math.max(4, math.floor(digitWidth * 0.18))
   
   local dotBlockWidth = math.floor(digitWidth * 0.5) 
-
   local startY = math.floor(((h - 20) - digitHeight) / 2) + 10
 
   local totalWidth = 0
@@ -126,15 +106,16 @@ local function paint(widget, w, h)
     end
   end
 
+  local margin = widget.margin or 45
   local skewBuffer = math.floor((digitHeight / 2) * 0.13)
-  local startX = w - totalWidth - skewBuffer - widget.margin - math.floor(digitSpacing * 2)
+  local startX = w - totalWidth - skewBuffer - margin
 
   for i = 1, len do
     local char = string.sub(valStr, i, i)
     
     if char == "." or char == "," then
       local dotWidth = math.max(3, math.floor(digitHeight * 0.08))
-      local exactDotX = startX + math.floor((dotBlockWidth - dotWidth) / 2)
+      local exactDotX = startX + math.floor((dotBlockWidth - dotWidth) / 2) - math.floor(digitSpacing * 2)
 
       local skewDotTop = math.floor((digitHeight / 2) * 0.13)
       local skewDotBot = math.floor((digitHeight / 2 - dotWidth) * 0.13)
@@ -154,21 +135,75 @@ local function paint(widget, w, h)
       end
     end
   end
+
+  if lastError then
+    lcd.color(lcd.RGB(255, 93, 93))
+    pcall(lcd.font, FONT_XS)
+    lcd.drawText(4, h - 16, "Vario error: " .. lastError)
+  end
 end
 
-local function wakeup(widget)
-  lcd.invalidate()
+local function configure(widget)
+  local function line(text) return form.addLine(text) end
+
+  if widget.margin == nil or widget.margin == 0 then widget.margin = 45 end
+  if widget.sizeSelection == nil or widget.sizeSelection == 0 then widget.sizeSelection = 2 end
+
+  local ln = line("Sensor auswaehlen")
+  form.addSourceField(ln, nil, function() return widget.sensor end, function(val) widget.sensor = val end, SOURCE_TELEMETRY)
+
+  ln = line("Farbe Steigen")
+  form.addColorField(ln, nil, function() return widget.climbColor end, function(val) widget.climbColor = val end)
+
+  ln = line("Farbe Sinken")
+  form.addColorField(ln, nil, function() return widget.sinkColor end, function(val) widget.sinkColor = val end)
+
+  ln = line("Randabstand einstellen")
+  -- GEÄNDERT: Obergrenze auf 600 Pixel erhöht für den breiten X20-Bildschirm
+  form.addNumberField(ln, nil, 0, 600, function() return widget.margin end, function(val) widget.margin = val end)
+
+  ln = line("Groesse (1=100%, 2=80%, 3=60%)")
+  form.addNumberField(ln, nil, 1, 3, function() return widget.sizeSelection end, function(val) widget.sizeSelection = val end)
+
+  ln = line("Nullzone 0.X")
+  form.addNumberField(ln, nil, 0, 20, function() return widget.deadbandValue end, function(val) widget.deadbandValue = val end)
+end
+
+local function read(widget)
+  pcall(function()
+    widget.sensor = storage.read("sensor")
+    widget.climbColor = storage.read("climbColor")
+    widget.sinkColor = storage.read("sinkColor")
+    widget.margin = storage.read("margin")
+    widget.sizeSelection = storage.read("sizeSelection")
+    widget.deadbandValue = storage.read("deadbandValue")
+  end)
+end
+
+local function write(widget)
+  pcall(function()
+    storage.write("sensor", widget.sensor)
+    storage.write("climbColor", widget.climbColor)
+    storage.write("sinkColor", widget.sinkColor)
+    storage.write("margin", widget.margin)
+    storage.write("sizeSelection", widget.sizeSelection)
+    storage.write("deadbandValue", widget.deadbandValue)
+  end)
 end
 
 local function init()
   system.registerWidget({
+    key = "vled",
     name = "Vario LED XXL",
     create = create,
-    options = options,
-    read = read,
+    wakeup = wakeup,
     paint = paint,
-    wakeup = wakeup
+    configure = configure,
+    read = read,
+    write = write,
+    persistent = true,
+    title = false,
   })
 end
 
-return {init = init}
+return { init = init }
