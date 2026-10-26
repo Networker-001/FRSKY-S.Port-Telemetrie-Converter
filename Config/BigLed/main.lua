@@ -1,7 +1,7 @@
 local lastError = nil
 
 local function create()
-  return { sensor = nil, climbColor = lcd.RGB(0, 255, 0), sinkColor = lcd.RGB(255, 0, 0), margin = 45, sizeSelection = 2, deadbandValue = 0, deadbandLow = 0, precisionValue = 1, dividerValue = 0 }
+  return { sensor = nil, climbColor = lcd.RGB(0, 255, 0), sinkColor = lcd.RGB(255, 0, 0), margin = 45, sizeSelection = 2, AlertType = 0, deadbandValue = 0, deadbandLow = 0, precisionValue = 1, dividerValue = 0 }
 end
 
 local function wakeup(widget)
@@ -71,15 +71,17 @@ local function paint(widget)
   local val = widget.sensor:value() or 0
   local deadbandValue = widget.deadbandValue or 0
   local deadbandLow = widget.deadbandLow or 0
-  local deadbandThreshold = deadbandValue or 0
-  local deadbandThresLow= deadbandLow or 0
+  local deadbandThreshold = widget.deadbandValue or 0
+  local deadbandThresLow = widget.deadbandLow or 0
+  local AlertType = widget.AlertType or 0
   if widget.precisionValue == 1 then
     deadbandThreshold = deadbandValue * 0.1
     deadbandThresLow = deadbandLow * 0.1
   else
-    deadbandThreshold = deadbandValue * 100
-    deadbandThresLow = deadbandLow * 100
+    deadbandThreshold = deadbandValue * 0.1
+    deadbandThresLow = deadbandLow * 0.1
   end
+
   local precision = widget.precisionValue or 1
   local isTimeFormat = false
 
@@ -93,29 +95,36 @@ local function paint(widget)
     local mins = math.floor(absVal / 60)
     local secs = math.floor(absVal % 60)
     val = sign * (mins + (secs / 100))
-    deadbandThreshold = deadbandValue
-    deadbandThresLow = deadbandLow 
+    deadbandThreshold = deadbandValue * 0.1
+    deadbandThresLow = deadbandLow * 0.1
   elseif divVal == 2 then
     val = val / 100
   end
 
-  if precision == 1 then
-    if deadbandThreshold == 0 then
-      lcd.color(lcd.RGB(255, 255, 255))
-    elseif val > deadbandThreshold then
+  if AlertType == 0 then
+    lcd.color(widget.climbColor or lcd.RGB(255, 255, 255))
+  elseif AlertType == 1 then
+    if val > deadbandThreshold then
       lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
-    elseif val < -deadbandThresLow then
+    elseif val > deadbandThresLow then
       lcd.color(widget.sinkColor or lcd.RGB(255, 0, 0))
     else
       lcd.color(lcd.RGB(255, 255, 255))
     end
-
-  else
-    if deadbandThreshold == 0 then
-      lcd.color(lcd.RGB(255, 255, 255))
-    elseif val > deadbandThreshold then
+  end
+  if AlertType == 2 then
+    if val < deadbandThreshold then
       lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
-    elseif val > deadbandThresLow then
+    elseif val < deadbandThresLow then
+      lcd.color(widget.sinkColor or lcd.RGB(255, 0, 0))
+    else
+      lcd.color(lcd.RGB(255, 255, 255))
+    end
+  end
+  if AlertType == 3 then
+    if val > deadbandThreshold then
+      lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
+    elseif val < -deadbandThresLow then
       lcd.color(widget.sinkColor or lcd.RGB(255, 0, 0))
     else
       lcd.color(lcd.RGB(255, 255, 255))
@@ -234,18 +243,20 @@ local function configure(widget)
   ln = line("Teiler 0=1, 1=Min.Sec, 2=/100")
   form.addNumberField(ln, nil, 0, 2, function() return widget.dividerValue end, function(val) widget.dividerValue = val end)
 
-  ln = line("Schelle oben 0.X / x*100")
-  form.addNumberField(ln, nil, 0, 50, function() return widget.deadbandValue end, function(val) widget.deadbandValue = val end)
+  ln = line("Schwelle (aus: 0, >: 1, <: 2, V:3)")
+  form.addNumberField(ln, nil, 0, 3, function() return widget.AlertType end, function(val) widget.AlertType = val end)
 
-  ln = line("Farbe Oberere Wert")
-  form.addColorField(ln, nil, function() return widget.climbColor end, function(val) widget.climbColor = val end)
-
-  ln = line("Schelle unten -0.X / x*100")
-  form.addNumberField(ln, nil, 0, 50, function() return widget.deadbandLow end, function(val) widget.deadbandLow = val end)
+  ln = line("Schelle unten 100 mili")
+  form.addNumberField(ln, nil, 0, 80000, function() return widget.deadbandLow end, function(val) widget.deadbandLow = val end)
 
   ln = line("Farbe Unterer Wert")
   form.addColorField(ln, nil, function() return widget.sinkColor end, function(val) widget.sinkColor = val end)
+  
+  ln = line("Schelle oben 100 mili")
+  form.addNumberField(ln, nil, 0, 80000, function() return widget.deadbandValue end, function(val) widget.deadbandValue = val end)
 
+  ln = line("Farbe Oberere Wert")
+  form.addColorField(ln, nil, function() return widget.climbColor end, function(val) widget.climbColor = val end)
 
 end
 
@@ -258,6 +269,7 @@ local function read(widget)
     widget.sizeSelection = storage.read("sizeSelection")
     widget.deadbandValue = storage.read("deadbandValue")
     widget.deadbandLow = storage.read("deadbandLow")
+    widget.AlertType = storage.read("AlertType")
     widget.precisionValue = storage.read("precisionValue")
     widget.dividerValue = storage.read("dividerValue")
   end)
@@ -272,6 +284,7 @@ local function write(widget)
     storage.write("sizeSelection", widget.sizeSelection)
     storage.write("deadbandValue", widget.deadbandValue)
     storage.write("deadbandLow", widget.deadbandLow)
+    storage.write("AlertType", widget.AlertType)
     storage.write("precisionValue", widget.precisionValue)
     storage.write("dividerValue", widget.dividerValue)
   end)
