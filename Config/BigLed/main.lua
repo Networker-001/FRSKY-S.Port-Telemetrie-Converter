@@ -103,7 +103,9 @@ local function paint(widget)
 
   if AlertType == 0 then
     lcd.color(widget.climbColor or lcd.RGB(255, 255, 255))
-  elseif AlertType == 1 then
+  end
+  
+  if AlertType == 1 then
     if val > deadbandThreshold then
       lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
     elseif val > deadbandThresLow then
@@ -112,6 +114,7 @@ local function paint(widget)
       lcd.color(lcd.RGB(255, 255, 255))
     end
   end
+
   if AlertType == 2 then
     if val < deadbandThreshold then
       lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
@@ -121,6 +124,7 @@ local function paint(widget)
       lcd.color(lcd.RGB(255, 255, 255))
     end
   end
+
   if AlertType == 3 then
     if val > deadbandThreshold then
       lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
@@ -194,13 +198,26 @@ local function paint(widget)
       local dotWidth = math.max(3, math.floor(digitHeight * 0.08))
       local exactDotX = startX + math.floor((dotBlockWidth - dotWidth) / 2) - math.floor(digitSpacing * 2)
 
-      local skewDotTop = math.floor((digitHeight / 2) * 0.13)
-      local skewDotBot = math.floor((digitHeight / 2 - dotWidth) * 0.13)
-      
-      lcd.drawFilledTriangle(exactDotX + skewDotTop, startY + digitHeight - dotWidth, exactDotX + dotWidth + skewDotTop, startY + digitHeight - dotWidth, exactDotX + skewDotBot, startY + digitHeight)
-      lcd.drawFilledTriangle(exactDotX + dotWidth + skewDotTop, startY + digitHeight - dotWidth, exactDotX + skewDotBot, startY + digitHeight, exactDotX + dotWidth + skewDotBot, startY + digitHeight)
-      
+      if isTimeFormat then
+        local timeDotX = exactDotX + math.floor(dotWidth * 0.9)
+        local skewTop = math.floor((digitHeight * 0.75) * 0.13)
+        local yTop = startY + math.floor(digitHeight * 0.25)
+        lcd.drawFilledTriangle(timeDotX + skewTop, yTop, timeDotX + dotWidth + skewTop, yTop, timeDotX + skewTop, yTop + dotWidth)
+        lcd.drawFilledTriangle(timeDotX + dotWidth + skewTop, yTop, timeDotX + skewTop, yTop + dotWidth, timeDotX + dotWidth + skewTop, yTop + dotWidth)
+
+        local skewBot = math.floor((digitHeight * 0.35) * 0.13)
+        local yBot = startY + math.floor(digitHeight * 0.65)
+        lcd.drawFilledTriangle(timeDotX + skewBot, yBot, timeDotX + dotWidth + skewBot, yBot, timeDotX + skewBot, yBot + dotWidth)
+        lcd.drawFilledTriangle(timeDotX + dotWidth + skewBot, yBot, timeDotX + skewBot, yBot + dotWidth, timeDotX + dotWidth + skewBot, yBot + dotWidth)
+      else
+        local skewDotTop = math.floor((digitHeight / 2) * 0.13)
+        local skewDotBot = math.floor((digitHeight / 2 - dotWidth) * 0.13)
+        lcd.drawFilledTriangle(exactDotX + skewDotTop, startY + digitHeight - dotWidth, exactDotX + dotWidth + skewDotTop, startY + digitHeight - dotWidth, exactDotX + skewDotBot, startY + digitHeight)
+        lcd.drawFilledTriangle(exactDotX + dotWidth + skewDotTop, startY + digitHeight - dotWidth, exactDotX + skewDotBot, startY + digitHeight, exactDotX + dotWidth + skewDotBot, startY + digitHeight)
+      end
+
       startX = startX + dotBlockWidth
+
     elseif char == "-" then
       drawDigit(startX, startY, digitWidth, digitHeight, "-")
       startX = startX or (startX + digitWidth + digitSpacing)
