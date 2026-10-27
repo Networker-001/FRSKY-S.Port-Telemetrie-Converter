@@ -228,34 +228,34 @@ local function configure(widget)
   if widget.precisionValue == nil then widget.precisionValue = 1 end
   if widget.dividerValue == nil then widget.dividerValue = 0 end
 
-  local ln = line("Sensor auswaehlen")
+  local ln = line("Sensor waehlen")
   form.addSourceField(ln, nil, function() return widget.sensor end, function(val) widget.sensor = val end, SOURCE_TELEMETRY)
 
-  ln = line("Randabstand einstellen")
+  ln = line("Rand rechts")
   form.addNumberField(ln, nil, 0, 600, function() return widget.margin end, function(val) widget.margin = val end)
 
-  ln = line("Groesse 1=100% bis 4=40%")
+  ln = line("Groesse (1=100% bis 4=40%)")
   form.addNumberField(ln, nil, 1, 4, function() return widget.sizeSelection end, function(val) widget.sizeSelection = val end)
 
   ln = line("Nachkommastellen (0-2)")
   form.addNumberField(ln, nil, 0, 2, function() return widget.precisionValue end, function(val) widget.precisionValue = val end)
 
-  ln = line("Teiler 0=1, 1=Min.Sec, 2=/100")
+  ln = line("Divisor (0=aus, 1=Min:Sec, 2=/100)")
   form.addNumberField(ln, nil, 0, 2, function() return widget.dividerValue end, function(val) widget.dividerValue = val end)
 
-  ln = line("Schwelle (aus: 0, >: 1, <: 2, V:3)")
+  ln = line("Trigger (0=aus, 1=>, 2=<, 3=Vario)")
   form.addNumberField(ln, nil, 0, 3, function() return widget.AlertType end, function(val) widget.AlertType = val end)
 
-  ln = line("Schelle unten 100 mili")
-  form.addNumberField(ln, nil, 0, 80000, function() return widget.deadbandLow end, function(val) widget.deadbandLow = val end)
+  ln = line("Wert Trigger unten (Wert*0.1)")
+  form.addNumberField(ln, nil, 0, 99999, function() return widget.deadbandLow end, function(val) widget.deadbandLow = val end)
 
-  ln = line("Farbe Unterer Wert")
+  ln = line("Farbe Trigger unten")
   form.addColorField(ln, nil, function() return widget.sinkColor end, function(val) widget.sinkColor = val end)
   
-  ln = line("Schelle oben 100 mili")
-  form.addNumberField(ln, nil, 0, 80000, function() return widget.deadbandValue end, function(val) widget.deadbandValue = val end)
+  ln = line("Wert Trigger oben (Wert*0.1)")
+  form.addNumberField(ln, nil, 0, 99999, function() return widget.deadbandValue end, function(val) widget.deadbandValue = val end)
 
-  ln = line("Farbe Oberere Wert")
+  ln = line("Farbe Trigger oben")
   form.addColorField(ln, nil, function() return widget.climbColor end, function(val) widget.climbColor = val end)
 
 end
