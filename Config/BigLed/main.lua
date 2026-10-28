@@ -74,31 +74,32 @@ local function paint(widget)
   local deadbandThreshold = widget.deadbandValue or 0
   local deadbandThresLow = widget.deadbandLow or 0
   local AlertType = widget.AlertType or 0
-  if widget.precisionValue == 1 then
-    deadbandThreshold = deadbandValue * 0.1
-    deadbandThresLow = deadbandLow * 0.1
-  else
-    deadbandThreshold = deadbandValue * 0.1
-    deadbandThresLow = deadbandLow * 0.1
-  end
+
 
   local precision = widget.precisionValue or 1
   local isTimeFormat = false
 
   local divVal = widget.dividerValue or 0
   if divVal == 1 then
+ 
     isTimeFormat = true
-    precision = 2
+    --precision = 2
     local sign = 1
     if val < 0 then sign = -1 end
     local absVal = math.abs(val)
     local mins = math.floor(absVal / 60)
     local secs = math.floor(absVal % 60)
     val = sign * (mins + (secs / 100))
-    deadbandThreshold = deadbandValue * 0.1
-    deadbandThresLow = deadbandLow * 0.1
   elseif divVal == 2 then
     val = val / 100
+  end
+  
+  if precision == 1 then
+    deadbandThreshold = deadbandValue * 0.1
+    deadbandThresLow = deadbandLow * 0.1  
+  elseif precision == 2 then
+    deadbandThreshold = deadbandValue * 0.01
+    deadbandThresLow = deadbandLow * 0.01  
   end
 
   if AlertType == 0 then
@@ -106,19 +107,19 @@ local function paint(widget)
   end
   
   if AlertType == 1 then
-    if val > deadbandThreshold then
-      lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
-    elseif val > deadbandThresLow then
-      lcd.color(widget.sinkColor or lcd.RGB(255, 0, 0))
+    if val < deadbandThreshold  then
+      lcd.color(widget.climbColor or lcd.RGB(255, 0, 0))
+    elseif val < deadbandThresLow then
+      lcd.color(widget.sinkColor or lcd.RGB(0, 255, 0))
     else
       lcd.color(lcd.RGB(255, 255, 255))
     end
   end
 
   if AlertType == 2 then
-    if val < deadbandThreshold then
+    if val > deadbandThreshold then
       lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
-    elseif val < deadbandThresLow then
+    elseif val > deadbandThresLow then
       lcd.color(widget.sinkColor or lcd.RGB(255, 0, 0))
     else
       lcd.color(lcd.RGB(255, 255, 255))
@@ -160,9 +161,10 @@ local function paint(widget)
   
   local sizeSelection = widget.sizeSelection or 2
   local scaleFactor = 1.0
-  if sizeSelection == 2 then scaleFactor = 0.8
+  if sizeSelection == 1 then scaleFactor = 0.2
+  elseif sizeSelection == 2 then scaleFactor = 0.4
   elseif sizeSelection == 3 then scaleFactor = 0.6
-  elseif sizeSelection == 4 then scaleFactor = 0.4 end
+  elseif sizeSelection == 4 then scaleFactor = 0.8     end
   
   local digitHeight = math.floor((h - 20) * scaleFactor)
   local digitWidth = math.floor(digitHeight * 0.48) 
@@ -251,28 +253,35 @@ local function configure(widget)
   ln = line("Rand rechts")
   form.addNumberField(ln, nil, 0, 600, function() return widget.margin end, function(val) widget.margin = val end)
 
-  ln = line("Groesse (1: 100% bis 4: 40%)")
-  form.addNumberField(ln, nil, 1, 4, function() return widget.sizeSelection end, function(val) widget.sizeSelection = val end)
+  ln = line("Groesse")
+  form.addChoiceField(ln, nil, {{"20%", 1}, {"40%", 2}, {"60%", 3},{"80%", 4},{"100%", 5}},
+        function() return widget.sizeSelection end,
+        function(value) widget.sizeSelection = value end)
 
   ln = line("Nachkommastellen (0-2)")
   form.addNumberField(ln, nil, 0, 2, function() return widget.precisionValue end, function(val) widget.precisionValue = val end)
 
-  ln = line("Divisor (0:aus, 1:Timer, 2:/100)")
-  form.addNumberField(ln, nil, 0, 2, function() return widget.dividerValue end, function(val) widget.dividerValue = val end)
+  ln = line("Divisor")
+  form.addChoiceField(ln, nil, {{"aus", 0}, {"Timer", 1}, {"/100", 2}},
+        function() return widget.dividerValue end,
+        function(value) widget.dividerValue = value end)
 
-  ln = line("Trigger (0:aus, 1:>, 2:<, 3:Vario)")
-  form.addNumberField(ln, nil, 0, 3, function() return widget.AlertType end, function(val) widget.AlertType = val end)
+  ln = line("Trigger (Typ)")
+ -- form.addNumberField(ln, nil, 0, 3, function() return widget.AlertType end, function(val) widget.AlertType = val end)
+  form.addChoiceField(ln, nil, {{"aus", 0}, {"kleiner", 1}, {"groesser", 2}, {"Vario", 3}},
+        function() return widget.AlertType end,
+        function(value) widget.AlertType = value end)
 
-  ln = line("Trigger Wert unten (Wert*0.1)")
+  ln = line("Trigger 1 (Wert)")
   form.addNumberField(ln, nil, 0, 99999, function() return widget.deadbandLow end, function(val) widget.deadbandLow = val end)
 
-  ln = line("Trigger Farbe unten")
+  ln = line("Trigger 1 (Farbe)")
   form.addColorField(ln, nil, function() return widget.sinkColor end, function(val) widget.sinkColor = val end)
   
-  ln = line("Trigger Wert oben (Wert*0.1)")
+  ln = line("Trigger 2 (Wert)")
   form.addNumberField(ln, nil, 0, 99999, function() return widget.deadbandValue end, function(val) widget.deadbandValue = val end)
 
-  ln = line("Trigger Farbe oben")
+  ln = line("Trigger 2 (Farbe)")
   form.addColorField(ln, nil, function() return widget.climbColor end, function(val) widget.climbColor = val end)
 
 end
