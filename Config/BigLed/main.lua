@@ -129,6 +129,16 @@ local function paint(widget)
   if AlertType == 3 then
     if val > deadbandThreshold then
       lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
+    elseif val < deadbandThresLow then
+      lcd.color(widget.sinkColor or lcd.RGB(255, 0, 0))
+    else
+      lcd.color(lcd.RGB(255, 255, 255))
+    end
+  end
+
+    if AlertType == 4 then
+    if val > deadbandThreshold then
+      lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
     elseif val < -deadbandThresLow then
       lcd.color(widget.sinkColor or lcd.RGB(255, 0, 0))
     else
@@ -258,8 +268,11 @@ local function configure(widget)
         function() return widget.sizeSelection end,
         function(value) widget.sizeSelection = value end)
 
-  ln = line("Nachkommastellen (0-2)")
-  form.addNumberField(ln, nil, 0, 2, function() return widget.precisionValue end, function(val) widget.precisionValue = val end)
+  ln = line("Nachkommastellen")
+  --form.addNumberField(ln, nil, 0, 2, function() return widget.precisionValue end, function(val) widget.precisionValue = val end)
+  form.addChoiceField(ln, nil, {{"0", 0}, {"1", 1}, {"2", 2}},
+        function() return widget.precisionValue end,
+        function(value) widget.precisionValue = value end)
 
   ln = line("Divisor")
   form.addChoiceField(ln, nil, {{"aus", 0}, {"Timer", 1}, {"/100", 2}},
@@ -268,7 +281,7 @@ local function configure(widget)
 
   ln = line("Trigger (Typ)")
  -- form.addNumberField(ln, nil, 0, 3, function() return widget.AlertType end, function(val) widget.AlertType = val end)
-  form.addChoiceField(ln, nil, {{"aus", 0}, {"kleiner", 1}, {"groesser", 2}, {"Vario", 3}},
+  form.addChoiceField(ln, nil, {{"aus", 0}, {"kleiner", 1}, {"groesser", 2}, {"kleiner groesser", 3}, {"Vario", 4}},
         function() return widget.AlertType end,
         function(value) widget.AlertType = value end)
 
