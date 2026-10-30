@@ -5,6 +5,10 @@ local function create()
 end
 
 local function wakeup(widget)
+      if widget.clearFormOnNextWakeUp then
+        
+        configure(widget) 
+    end
   lcd.invalidate()
 end
 
@@ -32,6 +36,7 @@ local function drawDigit(x, y, digitWidth, digitHeight, num)
     ["-"] = {false, false, false, false, false, false, true}
   }
 
+  
   local segMatrix = segments[num]
   if not segMatrix then return end
   
@@ -54,6 +59,7 @@ local function drawDigit(x, y, digitWidth, digitHeight, num)
   if segMatrix[4] then drawHorizontalSegment(x + th + gap, y + digitHeight - th, hW - (th * 2) - (gap * 2), th, skewBot) end
 end
 
+
 local function paint(widget)
   local w, h = lcd.getWindowSize()
   
@@ -65,9 +71,12 @@ local function paint(widget)
   
   lcd.font(FONT_STD)
   lcd.color(lcd.RGB(255, 255, 255))
+
+
   local sensorName = widget.sensor:name() or "Unbekannt"
   lcd.drawText(5, 5, sensorName)
   
+
   local val = widget.sensor:value() or 0
   local deadbandValue = widget.deadbandValue or 0
   local deadbandLow = widget.deadbandLow or 0
@@ -249,6 +258,7 @@ local function paint(widget)
   end
 end
 
+
 local function configure(widget)
   local function line(text) return form.addLine(text) end
 
@@ -257,7 +267,36 @@ local function configure(widget)
   if widget.precisionValue == nil then widget.precisionValue = 1 end
   if widget.dividerValue == nil then widget.dividerValue = 0 end
 
-  local ln = line("Sensor waehlen")
+  local triggerPanel
+  local precisionField
+
+  local function fillTriggerPanel()
+    if triggerPanel then
+      triggerPanel:clear()
+
+      local currentDecimals = widget.precisionValue
+      if widget.dividerValue == 1 then
+        currentDecimals = 2
+      end
+
+      local lnT1 = triggerPanel:addLine("Trigger 1 (Wert)")
+      local fieldLow = form.addNumberField(lnT1, nil, 0, 9999999, function() return widget.deadbandLow end, function(val) widget.deadbandLow = val end)
+      fieldLow:decimals(currentDecimals)
+
+      local lnC1 = triggerPanel:addLine("Trigger 1 (Farbe)")
+      form.addColorField(lnC1, nil, function() return widget.sinkColor end, function(val) widget.sinkColor = val end)
+      
+      local lnT2 = triggerPanel:addLine("Trigger 2 (Wert)")
+      local fieldHigh = form.addNumberField(lnT2, nil, 0, 9999999, function() return widget.deadbandValue end, function(val) widget.deadbandValue = val end)
+      fieldHigh:decimals(currentDecimals)
+
+      local lnC2 = triggerPanel:addLine("Trigger 2 (Farbe)")
+      form.addColorField(lnC2, nil, function() return widget.climbColor end, function(val) widget.climbColor = val end)
+    end
+  end
+
+  local ln = line("BIG LED XXL V1.67")
+  ln = line("Sensor waehlen")
   form.addSourceField(ln, nil, function() return widget.sensor end, function(val) widget.sensor = val end, SOURCE_TELEMETRY)
 
   ln = line("Rand rechts")
@@ -269,35 +308,37 @@ local function configure(widget)
         function(value) widget.sizeSelection = value end)
 
   ln = line("Nachkommastellen")
-  --form.addNumberField(ln, nil, 0, 2, function() return widget.precisionValue end, function(val) widget.precisionValue = val end)
-  form.addChoiceField(ln, nil, {{"0", 0}, {"1", 1}, {"2", 2}},
+  precisionField = form.addChoiceField(ln, nil, {{"0", 0}, {"1", 1}, {"2", 2}},
         function() return widget.precisionValue end,
-        function(value) widget.precisionValue = value end)
+        function(value) 
+            widget.precisionValue = value 
+            fillTriggerPanel()
+        end)
 
   ln = line("Divisor")
   form.addChoiceField(ln, nil, {{"aus", 0}, {"Timer", 1}, {"/100", 2}},
         function() return widget.dividerValue end,
-        function(value) widget.dividerValue = value end)
+        function(value) 
+            widget.dividerValue = value 
+            if value == 1 then
+                widget.precisionValue = 2
+            end
+            fillTriggerPanel()
+        end)
 
   ln = line("Trigger (Typ)")
- -- form.addNumberField(ln, nil, 0, 3, function() return widget.AlertType end, function(val) widget.AlertType = val end)
-  form.addChoiceField(ln, nil, {{"aus", 0}, {"kleiner", 1}, {"groesser", 2}, {"kleiner groesser", 3}, {"Vario", 4}},
+  form.addChoiceField(ln, nil, {{"aus", 0}, {" (<) kleiner", 1}, {" (>) groesser", 2}, {" (<>) kleiner groesser", 3}, {" (V) Vario", 4}},
         function() return widget.AlertType end,
         function(value) widget.AlertType = value end)
 
-  ln = line("Trigger 1 (Wert)")
-  form.addNumberField(ln, nil, 0, 99999, function() return widget.deadbandLow end, function(val) widget.deadbandLow = val end)
+  triggerPanel = form.addExpansionPanel("Trigger-Werte")
+  triggerPanel:open(true)
 
-  ln = line("Trigger 1 (Farbe)")
-  form.addColorField(ln, nil, function() return widget.sinkColor end, function(val) widget.sinkColor = val end)
-  
-  ln = line("Trigger 2 (Wert)")
-  form.addNumberField(ln, nil, 0, 99999, function() return widget.deadbandValue end, function(val) widget.deadbandValue = val end)
-
-  ln = line("Trigger 2 (Farbe)")
-  form.addColorField(ln, nil, function() return widget.climbColor end, function(val) widget.climbColor = val end)
-
+  fillTriggerPanel()
 end
+
+
+
 
 local function read(widget)
   pcall(function()
