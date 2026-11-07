@@ -4,12 +4,21 @@ local function create()
   return { sensor = nil, climbColor = lcd.RGB(0, 255, 0), sinkColor = lcd.RGB(255, 0, 0), margin = 45, sizeSelection = 2, AlertType = 0, deadbandValue = 0, deadbandLow = 0, precisionValue = 1, dividerValue = 0 }
 end
 
+-- Wir brauchen eine Variable außerhalb der Funktion, um die Zeit zu speichern
+local lastUpdateTime = 0
+
 local function wakeup(widget)
-      if widget.clearFormOnNextWakeUp then
-        
-        configure(widget) 
-    end
-  lcd.invalidate()
+  -- 1. Erst die normale Formular-Prüfung wie bisher
+  if widget.clearFormOnNextWakeUp then
+    configure(widget) 
+  end
+
+  -- 2. Die Zeitsperre:
+  local currentTime = os.clock()
+  if currentTime - lastUpdateTime >= 0.1 then -- 0.1 Sekunden = 100ms = 10Hz
+    lastUpdateTime = currentTime
+    lcd.invalidate() -- Erst jetzt erlauben wir Ethos das Neuzeichnen
+  end
 end
 
 local function drawVerticalSegment(x, y, w, h, skew)
@@ -295,7 +304,7 @@ local function configure(widget)
     end
   end
 
-  local ln = line("BIG LED XXL V1.67")
+  local ln = line("BIG LED XXL V1.68")
   ln = line("Sensor waehlen")
   form.addSourceField(ln, nil, function() return widget.sensor end, function(val) widget.sensor = val end, SOURCE_TELEMETRY)
 
