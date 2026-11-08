@@ -1,11 +1,9 @@
 local lastError = nil
+  local lastUpdateTime = 0
 
 local function create()
   return { sensor = nil, climbColor = lcd.RGB(0, 255, 0), sinkColor = lcd.RGB(255, 0, 0), margin = 45, sizeSelection = 2, AlertType = 0, deadbandValue = 0, deadbandLow = 0, precisionValue = 1, dividerValue = 0 }
 end
-
--- Wir brauchen eine Variable außerhalb der Funktion, um die Zeit zu speichern
-local lastUpdateTime = 0
 
 local function wakeup(widget)
   -- 1. Erst die normale Formular-Prüfung wie bisher
@@ -15,7 +13,7 @@ local function wakeup(widget)
 
   -- 2. Die Zeitsperre:
   local currentTime = os.clock()
-  if currentTime - lastUpdateTime >= 0.1 then -- 0.1 Sekunden = 100ms = 10Hz
+  if currentTime - lastUpdateTime >= 0.2 then -- 0.1 Sekunden = 100ms = 10Hz
     lastUpdateTime = currentTime
     lcd.invalidate() -- Erst jetzt erlauben wir Ethos das Neuzeichnen
   end
@@ -71,6 +69,7 @@ end
 
 local function paint(widget)
   local w, h = lcd.getWindowSize()
+  local currentTime = os.clock()
   
   if not widget.sensor then
     lcd.font(FONT_STD)
@@ -288,14 +287,14 @@ local function configure(widget)
         currentDecimals = 2
       end
 
-      local lnT1 = triggerPanel:addLine("Trigger 1 (Wert)")
+      local lnT1 = triggerPanel:addLine("Trigger 1 (Wert (X)")
       local fieldLow = form.addNumberField(lnT1, nil, 0, 9999999, function() return widget.deadbandLow end, function(val) widget.deadbandLow = val end)
       fieldLow:decimals(currentDecimals)
 
       local lnC1 = triggerPanel:addLine("Trigger 1 (Farbe)")
       form.addColorField(lnC1, nil, function() return widget.sinkColor end, function(val) widget.sinkColor = val end)
       
-      local lnT2 = triggerPanel:addLine("Trigger 2 (Wert)")
+      local lnT2 = triggerPanel:addLine("Trigger 2 (Wert (X))")
       local fieldHigh = form.addNumberField(lnT2, nil, 0, 9999999, function() return widget.deadbandValue end, function(val) widget.deadbandValue = val end)
       fieldHigh:decimals(currentDecimals)
 
@@ -304,8 +303,8 @@ local function configure(widget)
     end
   end
 
-  local ln = line("BIG LED XXL V1.68")
-  ln = line("Sensor waehlen")
+  local ln = line("BIG LED XXL V1.67")
+  ln = line("Quelle")
   form.addSourceField(ln, nil, function() return widget.sensor end, function(val) widget.sensor = val end, SOURCE_TELEMETRY)
 
   ln = line("Rand rechts")
@@ -317,15 +316,15 @@ local function configure(widget)
         function(value) widget.sizeSelection = value end)
 
   ln = line("Nachkommastellen")
-  precisionField = form.addChoiceField(ln, nil, {{"0", 0}, {"1", 1}, {"2", 2}},
+  precisionField = form.addChoiceField(ln, nil, {{"---", 0}, {"1", 1}, {"2", 2}},
         function() return widget.precisionValue end,
         function(value) 
             widget.precisionValue = value 
             fillTriggerPanel()
         end)
 
-  ln = line("Divisor")
-  form.addChoiceField(ln, nil, {{"aus", 0}, {"Timer", 1}, {"/100", 2}},
+  ln = line("Stoppuhr")
+  form.addChoiceField(ln, nil, {{"---", 0}, {"Stoppuhr", 1}},
         function() return widget.dividerValue end,
         function(value) 
             widget.dividerValue = value 
@@ -335,12 +334,12 @@ local function configure(widget)
             fillTriggerPanel()
         end)
 
-  ln = line("Trigger (Typ)")
-  form.addChoiceField(ln, nil, {{"aus", 0}, {" (<) kleiner", 1}, {" (>) groesser", 2}, {" (<>) kleiner groesser", 3}, {" (V) Vario", 4}},
+  ln = line("Funktion")
+  form.addChoiceField(ln, nil, {{"---", 0}, {" A < X", 1}, {" A > X", 2}, {" A < >", 3}, {" Vario", 4}},
         function() return widget.AlertType end,
         function(value) widget.AlertType = value end)
 
-  triggerPanel = form.addExpansionPanel("Trigger-Werte")
+  triggerPanel = form.addExpansionPanel("Trigger")
   triggerPanel:open(true)
 
   fillTriggerPanel()
