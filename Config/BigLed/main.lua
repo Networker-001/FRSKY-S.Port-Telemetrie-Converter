@@ -1,33 +1,73 @@
+-- ============================================================================
+-- Widget: BIG LED XXL
+-- Version: 1.68
+-- Platform: FrSky ETHOS
+-- Author: Martin
+-- License: MIT License
+--
+-- Copyright (c) 2026 Martin
+-- Permission is hereby granted, free of charge, to any person obtaining a copy
+-- of this software and associated documentation files (the "Software"), to deal
+-- in the Software without restriction, including without limitation the rights
+-- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-- copies of the Software, and to permit persons to whom the Software is
+-- furnished to do so, subject to the following conditions:
+--
+-- The above copyright notice and this permission notice shall be included in
+-- all copies or substantial portions of the Software.
+--
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+-- THE SOFTWARE.
+-- ============================================================================
+
 local lastError = nil
-  local lastUpdateTime = 0
 
+-- Initialize default widget instance variables
 local function create()
-  return { sensor = nil, climbColor = lcd.RGB(0, 255, 0), sinkColor = lcd.RGB(255, 0, 0), margin = 45, sizeSelection = 2, AlertType = 0, deadbandValue = 0, deadbandLow = 0, precisionValue = 1, dividerValue = 0 }
+  return {
+    sensor = nil,
+    climbColor = lcd.RGB(0, 255, 0),
+    sinkColor = lcd.RGB(255, 0, 0),
+    margin = 45,
+    sizeSelection = 2,
+    AlertType = 0,
+    deadbandValue = 0,
+    deadbandLow = 0,
+    precisionValue = 1,
+    dividerValue = 0,
+    lastUpdateTime = 0,
+    updateRate = 200
+  }
 end
 
+-- Periodic wakeup handler with per-instance refresh rate control
 local function wakeup(widget)
-  -- 1. Erst die normale Formular-Prüfung wie bisher
-  if widget.clearFormOnNextWakeUp then
-    configure(widget) 
-  end
-
-  -- 2. Die Zeitsperre:
   local currentTime = os.clock()
-  if currentTime - lastUpdateTime >= 0.2 then -- 0.1 Sekunden = 100ms = 10Hz
-    lastUpdateTime = currentTime
-    lcd.invalidate() -- Erst jetzt erlauben wir Ethos das Neuzeichnen
+  local lastTime = widget.lastUpdateTime or 0
+  local interval = (widget.updateRate or 200) / 1000
+  if currentTime - lastTime >= interval then
+    widget.lastUpdateTime = currentTime
+    lcd.invalidate()
   end
 end
 
+-- Draw a skewed vertical 7-segment bar using two filled triangles
 local function drawVerticalSegment(x, y, w, h, skew)
   lcd.drawFilledTriangle(x, y, x + w, y, x + skew, y + h)
   lcd.drawFilledTriangle(x + w, y, x + skew, y + h, x + w + skew, y + h)
 end
 
+-- Draw a horizontal 7-segment bar using a filled rectangle
 local function drawHorizontalSegment(x, y, w, h, skewY)
   lcd.drawFilledRectangle(x + skewY, y, w, h)
 end
 
+-- Render a single 7-segment character with 13 percent italic skew
 local function drawDigit(x, y, digitWidth, digitHeight, num)
   local segments = {
     [0] = {true,  true,  true,  true,  true,  true,  false},
@@ -43,16 +83,15 @@ local function drawDigit(x, y, digitWidth, digitHeight, num)
     ["-"] = {false, false, false, false, false, false, true}
   }
 
-  
   local segMatrix = segments[num]
   if not segMatrix then return end
-  
-  local th = math.max(2, math.floor(digitHeight * 0.06)) 
+
+  local th = math.max(2, math.floor(digitHeight * 0.06))
   local hW = math.floor(digitWidth)
   local hH = math.floor(digitHeight / 2)
   local gap = math.max(1, math.floor(th * 0.2))
-  
-  local skewFactor = 0.13 
+
+  local skewFactor = 0.13
   local skewTop = math.floor(hH * skewFactor)
   local skewMid = 0
   local skewBot = math.floor(-hH * skewFactor)
@@ -66,24 +105,22 @@ local function drawDigit(x, y, digitWidth, digitHeight, num)
   if segMatrix[4] then drawHorizontalSegment(x + th + gap, y + digitHeight - th, hW - (th * 2) - (gap * 2), th, skewBot) end
 end
 
-
+-- Main rendering loop for the widget display
 local function paint(widget)
   local w, h = lcd.getWindowSize()
-  local currentTime = os.clock()
-  
+
   if not widget.sensor then
     lcd.font(FONT_STD)
     lcd.drawText(20, 20, "Bitte Sensor waehlen...")
     return
   end
-  
+
   lcd.font(FONT_STD)
   lcd.color(lcd.RGB(255, 255, 255))
 
-
+  -- Draw telemetry sensor name in top left corner
   local sensorName = widget.sensor:name() or "Unbekannt"
   lcd.drawText(5, 5, sensorName)
-  
 
   local val = widget.sensor:value() or 0
   local deadbandValue = widget.deadbandValue or 0
@@ -92,15 +129,13 @@ local function paint(widget)
   local deadbandThresLow = widget.deadbandLow or 0
   local AlertType = widget.AlertType or 0
 
-
   local precision = widget.precisionValue or 1
   local isTimeFormat = false
 
+  -- Apply divider or convert seconds to minutes and seconds format
   local divVal = widget.dividerValue or 0
   if divVal == 1 then
- 
     isTimeFormat = true
-    --precision = 2
     local sign = 1
     if val < 0 then sign = -1 end
     local absVal = math.abs(val)
@@ -110,30 +145,28 @@ local function paint(widget)
   elseif divVal == 2 then
     val = val / 100
   end
-  
+
+  -- Scale trigger thresholds according to selected decimal precision
   if precision == 1 then
     deadbandThreshold = deadbandValue * 0.1
-    deadbandThresLow = deadbandLow * 0.1  
+    deadbandThresLow = deadbandLow * 0.1
   elseif precision == 2 then
     deadbandThreshold = deadbandValue * 0.01
-    deadbandThresLow = deadbandLow * 0.01  
+    deadbandThresLow = deadbandLow * 0.01
   end
 
+  -- Determine display color based on selected alert mode and thresholds
   if AlertType == 0 then
     lcd.color(widget.climbColor or lcd.RGB(255, 255, 255))
-  end
-  
-  if AlertType == 1 then
-    if val < deadbandThreshold  then
+  elseif AlertType == 1 then
+    if val < deadbandThreshold then
       lcd.color(widget.climbColor or lcd.RGB(255, 0, 0))
     elseif val < deadbandThresLow then
       lcd.color(widget.sinkColor or lcd.RGB(0, 255, 0))
     else
       lcd.color(lcd.RGB(255, 255, 255))
     end
-  end
-
-  if AlertType == 2 then
+  elseif AlertType == 2 then
     if val > deadbandThreshold then
       lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
     elseif val > deadbandThresLow then
@@ -141,9 +174,7 @@ local function paint(widget)
     else
       lcd.color(lcd.RGB(255, 255, 255))
     end
-  end
-
-  if AlertType == 3 then
+  elseif AlertType == 3 then
     if val > deadbandThreshold then
       lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
     elseif val < deadbandThresLow then
@@ -151,9 +182,7 @@ local function paint(widget)
     else
       lcd.color(lcd.RGB(255, 255, 255))
     end
-  end
-
-    if AlertType == 4 then
+  elseif AlertType == 4 then
     if val > deadbandThreshold then
       lcd.color(widget.climbColor or lcd.RGB(0, 255, 0))
     elseif val < -deadbandThresLow then
@@ -163,6 +192,7 @@ local function paint(widget)
     end
   end
 
+  -- Truncate decimals without rounding up for standard numeric values
   if not isTimeFormat then
     local mult = 10 ^ precision
     if val >= 0 then
@@ -172,6 +202,8 @@ local function paint(widget)
     end
   end
 
+  -- Format value into display string
+  local valStr = ""
   local formatStr = "%." .. tostring(precision) .. "f"
   if isTimeFormat then
     local signStr = ""
@@ -183,23 +215,25 @@ local function paint(widget)
   else
     valStr = string.format(formatStr, val)
   end
-  
+
   local len = string.len(valStr)
-  
+
+  -- Calculate character dimensions based on selected scale factor
   local sizeSelection = widget.sizeSelection or 2
   local scaleFactor = 1.0
   if sizeSelection == 1 then scaleFactor = 0.2
   elseif sizeSelection == 2 then scaleFactor = 0.4
   elseif sizeSelection == 3 then scaleFactor = 0.6
-  elseif sizeSelection == 4 then scaleFactor = 0.8     end
-  
+  elseif sizeSelection == 4 then scaleFactor = 0.8 end
+
   local digitHeight = math.floor((h - 20) * scaleFactor)
-  local digitWidth = math.floor(digitHeight * 0.48) 
+  local digitWidth = math.floor(digitHeight * 0.48)
   local digitSpacing = math.max(4, math.floor(digitWidth * 0.18))
-  
-  local dotBlockWidth = math.floor(digitWidth * 0.5) 
+
+  local dotBlockWidth = math.floor(digitWidth * 0.5)
   local startY = math.floor(((h - 20) - digitHeight) / 2) + 10
 
+  -- Calculate total horizontal width for right-aligned positioning
   local totalWidth = 0
   for i = 1, len do
     local char = string.sub(valStr, i, i)
@@ -211,8 +245,8 @@ local function paint(widget)
   end
   if len > 0 then
     local lastChar = string.sub(valStr, len, len)
-    if lastChar ~= "." and lastChar ~= "," then 
-      totalWidth = totalWidth - digitSpacing 
+    if lastChar ~= "." and lastChar ~= "," then
+      totalWidth = totalWidth - digitSpacing
     end
   end
 
@@ -220,14 +254,16 @@ local function paint(widget)
   local skewBuffer = math.floor((digitHeight / 2) * 0.13)
   local startX = w - totalWidth - skewBuffer - margin
 
+  -- Iterate through formatted string and render each character
   for i = 1, len do
     local char = string.sub(valStr, i, i)
-    
+
     if char == "." or char == "," then
       local dotWidth = math.max(3, math.floor(digitHeight * 0.08))
       local exactDotX = startX + math.floor((dotBlockWidth - dotWidth) / 2) - math.floor(digitSpacing * 2)
 
       if isTimeFormat then
+        -- Render skewed colon for time format
         local timeDotX = exactDotX + math.floor(dotWidth * 0.9)
         local skewTop = math.floor((digitHeight * 0.75) * 0.13)
         local yTop = startY + math.floor(digitHeight * 0.25)
@@ -239,6 +275,7 @@ local function paint(widget)
         lcd.drawFilledTriangle(timeDotX + skewBot, yBot, timeDotX + dotWidth + skewBot, yBot, timeDotX + skewBot, yBot + dotWidth)
         lcd.drawFilledTriangle(timeDotX + dotWidth + skewBot, yBot, timeDotX + skewBot, yBot + dotWidth, timeDotX + dotWidth + skewBot, yBot + dotWidth)
       else
+        -- Render skewed decimal point
         local skewDotTop = math.floor((digitHeight / 2) * 0.13)
         local skewDotBot = math.floor((digitHeight / 2 - dotWidth) * 0.13)
         lcd.drawFilledTriangle(exactDotX + skewDotTop, startY + digitHeight - dotWidth, exactDotX + dotWidth + skewDotTop, startY + digitHeight - dotWidth, exactDotX + skewDotBot, startY + digitHeight)
@@ -246,10 +283,9 @@ local function paint(widget)
       end
 
       startX = startX + dotBlockWidth
-
     elseif char == "-" then
       drawDigit(startX, startY, digitWidth, digitHeight, "-")
-      startX = startX or (startX + digitWidth + digitSpacing)
+      startX = startX + digitWidth + digitSpacing
     else
       local num = tonumber(char)
       if num then
@@ -266,7 +302,7 @@ local function paint(widget)
   end
 end
 
-
+-- Build widget settings menu in ETHOS
 local function configure(widget)
   local function line(text) return form.addLine(text) end
 
@@ -274,10 +310,12 @@ local function configure(widget)
   if widget.sizeSelection == nil or widget.sizeSelection == 0 then widget.sizeSelection = 2 end
   if widget.precisionValue == nil then widget.precisionValue = 1 end
   if widget.dividerValue == nil then widget.dividerValue = 0 end
+  if widget.updateRate == nil then widget.updateRate = 200 end
 
   local triggerPanel
   local precisionField
 
+  -- Dynamically rebuild trigger threshold fields based on decimal precision
   local function fillTriggerPanel()
     if triggerPanel then
       triggerPanel:clear()
@@ -293,7 +331,7 @@ local function configure(widget)
 
       local lnC1 = triggerPanel:addLine("Trigger 1 (Farbe)")
       form.addColorField(lnC1, nil, function() return widget.sinkColor end, function(val) widget.sinkColor = val end)
-      
+
       local lnT2 = triggerPanel:addLine("Trigger 2 (Wert (X))")
       local fieldHigh = form.addNumberField(lnT2, nil, 0, 9999999, function() return widget.deadbandValue end, function(val) widget.deadbandValue = val end)
       fieldHigh:decimals(currentDecimals)
@@ -303,7 +341,7 @@ local function configure(widget)
     end
   end
 
-  local ln = line("BIG LED XXL V1.67")
+  local ln = line("BIG LED XXL V1.68")
   ln = line("Quelle")
   form.addSourceField(ln, nil, function() return widget.sensor end, function(val) widget.sensor = val end, SOURCE_TELEMETRY)
 
@@ -311,28 +349,33 @@ local function configure(widget)
   form.addNumberField(ln, nil, 0, 600, function() return widget.margin end, function(val) widget.margin = val end)
 
   ln = line("Groesse")
-  form.addChoiceField(ln, nil, {{"20%", 1}, {"40%", 2}, {"60%", 3},{"80%", 4},{"100%", 5}},
+  form.addChoiceField(ln, nil, {{"20%", 1}, {"40%", 2}, {"60%", 3}, {"80%", 4}, {"100%", 5}},
         function() return widget.sizeSelection end,
         function(value) widget.sizeSelection = value end)
 
   ln = line("Nachkommastellen")
   precisionField = form.addChoiceField(ln, nil, {{"---", 0}, {"1", 1}, {"2", 2}},
         function() return widget.precisionValue end,
-        function(value) 
-            widget.precisionValue = value 
+        function(value)
+            widget.precisionValue = value
             fillTriggerPanel()
         end)
 
   ln = line("Stoppuhr")
   form.addChoiceField(ln, nil, {{"---", 0}, {"Stoppuhr", 1}},
         function() return widget.dividerValue end,
-        function(value) 
-            widget.dividerValue = value 
+        function(value)
+            widget.dividerValue = value
             if value == 1 then
                 widget.precisionValue = 2
             end
             fillTriggerPanel()
         end)
+
+  ln = line("Updaterate")
+  form.addChoiceField(ln, nil, {{"100 ms", 100}, {"200 ms", 200}, {"300 ms", 300}, {"500 ms", 500}, {"1000 ms", 1000}},
+        function() return widget.updateRate or 200 end,
+        function(value) widget.updateRate = value end)
 
   ln = line("Funktion")
   form.addChoiceField(ln, nil, {{"---", 0}, {" A < X", 1}, {" A > X", 2}, {" A < >", 3}, {" Vario", 4}},
@@ -345,9 +388,7 @@ local function configure(widget)
   fillTriggerPanel()
 end
 
-
-
-
+-- Load saved widget parameters from model storage
 local function read(widget)
   pcall(function()
     widget.sensor = storage.read("sensor")
@@ -355,14 +396,16 @@ local function read(widget)
     widget.sinkColor = storage.read("sinkColor")
     widget.margin = storage.read("margin")
     widget.sizeSelection = storage.read("sizeSelection")
-    widget.deadbandValue = storage.read("deadbandValue")
-    widget.deadbandLow = storage.read("deadbandLow")
-    widget.AlertType = storage.read("AlertType")
-    widget.precisionValue = storage.read("precisionValue")
-    widget.dividerValue = storage.read("dividerValue")
+    widget.deadbandValue = storage.read("deadbandValue") or 0
+    widget.deadbandLow = storage.read("deadbandLow") or 0
+    widget.AlertType = storage.read("AlertType") or 0
+    widget.precisionValue = storage.read("precisionValue") or 1
+    widget.dividerValue = storage.read("dividerValue") or 0
+    widget.updateRate = storage.read("updateRate") or 200
   end)
 end
 
+-- Save widget parameters to model storage
 local function write(widget)
   pcall(function()
     storage.write("sensor", widget.sensor)
@@ -375,9 +418,11 @@ local function write(widget)
     storage.write("AlertType", widget.AlertType)
     storage.write("precisionValue", widget.precisionValue)
     storage.write("dividerValue", widget.dividerValue)
+    storage.write("updateRate", widget.updateRate)
   end)
 end
 
+-- Register widget with ETHOS system
 local function init()
   system.registerWidget({
     key = "BigLED",
@@ -394,3 +439,4 @@ local function init()
 end
 
 return { init = init }
+
