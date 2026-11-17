@@ -1,7 +1,7 @@
 # FRSKY S.Port to HOTT, Multiplex, Jeti Exbus Converter (RP2040)
 
 Die hier vorgestellte Lösung ermöglicht die Übertragung von Telemetriewerten von 
-S.Port Sensoren zu Multiplex oder Jeti REX Empfängern.
+S.Port Sensoren zu Multiplex, Jeti REX Empfängern, ELRS, Hott und weiteren Empfängern.
 
 Es wird ein kleines Zero Board (Waveshare RP2040-Zero) benötigt, das mit einem Widerstand zwischen
 dem Telemetrie-Eingang des Empfängers und dem Telemetrieausgang des Sensors eingefügt wird.
