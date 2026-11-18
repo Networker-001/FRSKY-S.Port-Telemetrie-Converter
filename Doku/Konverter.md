@@ -41,8 +41,11 @@
    * `SAVE` : Speichert alle Parameter im Flash-Speicher des Pico
      
 6. **Debuggen:**
-   * `FV`   : Zeigt empfangene Werte
-   * `DT=Y` : Zeigt empfangene Protokolle
+   * `FV`   : Zeigt empfangene Werte statisch
+   * `DT=Y` : Zeigt empfangene Pakete rollierend
+   * `DV=Y` : Zeigt empfangene PaketTypen rollierend
+   * `DF=Y` : Zeigt empfangene FRSKY Pakete rollierend
+   * `DA=Y` : Zeigt Telemetriewerte in Tabellenform rollierend
 ***
 
 
