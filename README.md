@@ -15,7 +15,7 @@ Also ein sehr überschaubares Projekt!
 
 **[Diskussion auf RC-Network](https://www.rc-network.de/threads/jeti-inav-keinen-%C3%9Cbertragung-der-telemetriewerte.12125914/)**  
 
-## 3 Sensoren am ELRS Empfänger S.Port nach CRSF
+## 3 FRSKY Sensoren am ELRS Empfänger S.Port nach CRSF
 ![Sensoren](Bilder/Aufbau.jpg)
 
 
