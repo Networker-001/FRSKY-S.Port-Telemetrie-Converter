@@ -13,7 +13,7 @@ In dieses kopiert man die entsprechende .uf2 Datei aus dem Ordner [Config](./Con
 
 Also ein sehr überschaubares Projekt!
 
-**[Diskussion auf RC-Network](https://www.rc-network.de/threads/jeti-inav-keinen-%C3%9Cbertragung-der-telemetriewerte.12125914/)**  
+**[Diskussion auf RC-Network](https://www.rc-network.de/threads/telemetrie-wandler-frsky-s-port-nach-hott-crsf.12146885/#post-13374168/)**  
 
 ## 3 FRSKY Sensoren am ELRS Empfänger S.Port nach CRSF
 ![Sensoren](Bilder/Aufbau.jpg)
