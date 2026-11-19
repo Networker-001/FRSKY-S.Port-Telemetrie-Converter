@@ -13,11 +13,6 @@ In dieses kopiert man die entsprechende .uf2 Datei aus dem Ordner [Config](./Con
 
 Also ein sehr überschaubares Projekt!
 
-**[Diskussion auf RC-Network](https://www.rc-network.de/threads/telemetrie-wandler-frsky-s-port-nach-hott-crsf.12146885/#post-13374168/)**  
-
-## 3 FRSKY Sensoren am ELRS Empfänger S.Port nach CRSF
-![Sensoren](Bilder/Aufbau.jpg)
-
 
 [Zum physikalischen Aufbau](Doku/Aufbau.md)
 
@@ -26,6 +21,13 @@ Also ein sehr überschaubares Projekt!
 [Übertragene Telemetriewerte](Doku/FRSKY.md)
 
 [Zum orginalen OPENXSENSOR on RP2040 Projekt](Doku/oxs.md)
+
+**[Diskussion auf RC-Network](https://www.rc-network.de/threads/telemetrie-wandler-frsky-s-port-nach-hott-crsf.12146885/#post-13374168/)**  
+
+## 3 FRSKY Sensoren am ELRS Empfänger S.Port nach CRSF
+![Sensoren](Bilder/Aufbau.jpg)
+
+
 
 
 
