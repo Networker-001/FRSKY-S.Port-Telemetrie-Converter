@@ -1,33 +1,5 @@
 # FRSKY S.Port to HOTT, Multiplex, Jeti Exbus Converter (RP2040)
 
-Die hier vorgestellte Lösung ermöglicht die Übertragung von Telemetriewerten von 
-S.Port Sensoren zu Multiplex, Jeti REX Empfängern, ELRS, Hott und weiteren Empfängern.
-
-Es wird ein kleines Zero Board (Waveshare RP2040-Zero) benötigt, das mit einem Widerstand zwischen
-dem Telemetrie-Eingang des Empfängers und dem Telemetrieausgang des Sensors eingefügt wird.
-
-Zur Konfiguration des Boards wird dieses mit einem USB Kabel an einem PC angeschlossen.  
-Es öffnet sich ein Windows-Explorerfenster.  
-In dieses kopiert man die entsprechende .uf2 Datei aus dem Ordner [Config](./Config) und das wars!
-
-
-Also ein sehr überschaubares Projekt!
-
-
-[Zum physikalischen Aufbau](Doku/Aufbau.md)
-
-[Zum USB MENUE des Konverters](Doku/Konverter.md)
-
-[Übertragene Telemetriewerte](Doku/FRSKY.md)
-
-[Zum orginalen OPENXSENSOR on RP2040 Projekt](Doku/oxs.md)
-
-**[Diskussion auf RC-Network](https://www.rc-network.de/threads/telemetrie-wandler-frsky-s-port-nach-hott-crsf.12146885/#post-13374168/)**  
-
-## 3 FRSKY Sensoren am ELRS Empfänger S.Port nach CRSF
-![Sensoren](Bilder/Aufbau.jpg)
-
-
-
-
-
+| Projektübersicht & Dokumentation | Praxisaufbau (S.Port nach CRSF) |
+| :--- | :--- |
+| Überträgt Telemetriewerte von FrSky S.Port Sensoren zu Multiplex, Jeti REX, ELRS, HoTT und weiteren Empfängern.<br><br>Benötigt wird ein **Waveshare RP2040-Zero** mit einem Widerstand zwischen Sensor und Empfänger. Zur Einrichtung per USB anschließen und die passende `.uf2`-Datei aus [Config](./Config) auf das Laufwerk kopieren.<br><br>**Weiterführende Seiten:**<br>- [Physikalischer Aufbau](Doku/Aufbau.md)<br>- [USB-Menü des Konverters](Doku/Konverter.md)<br>- [Übertragene Telemetriewerte](Doku/FRSKY.md)<br>- [Originales openXsensor RP2040 Projekt](Doku/oxs.md)<br>- **[Diskussion auf RC-Network](https://www.rc-network.de/threads/telemetrie-wandler-frsky-s-port-nach-hott-crsf.12146885/#post-13374168/)** | <img src="Bilder/Aufbau.jpg" alt="Sensoren" width="380"> |
