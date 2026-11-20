@@ -18,7 +18,7 @@ Alle ID-Bereiche (`0x...0` bis `0x...F`) werden durch die Index-Filterung (`filt
 | **`0x0800`** | GPS Koordinaten (Lat / Lon) | Bit `31`: Typ, Bit `30`: Vorzeichen, Bits `0–29`: Wert | `1/600000 Grad` | Umrechnung in `1e-7 Grad` | `LATITUDE` / `LONGITUDE` | `0.0000001°` |
 | **`0x0820`** | GPS Höhe | `int32_t` (32 Bit) | `0.01 m` (`cm`) | `* 1` | `ALTITUDE` | `cm` (`0.01 m`) |
 | **`0x0830`** | GPS Geschwindigkeit (Groundspeed) | `uint32_t` (32 Bit) | `0.001 Knoten` | `* 0.051444` | `GROUNDSPEED` | `cm/s` |
-| **`0x0840`** | GPS Kurs (im FrSky-Stream nicht genutzt) | — | — | Überschrieben durch RTH | `HEADING` *(RTH-Steuersignal)* | `0` – `10000` (`5000` = Neutral) |
+| **`0x0840`** | GPS Kurs (Heading) | `uint32_t` (32 Bit) | `0.01 °` (`0` – `35999`) | `* 1` | `HEADING` | `0.01 °` |
 | **`0x0850`** | GPS Datum & Uhrzeit | Gepacktes Datums-/Zeitformat | Jahr/Monat/Tag/Std/Min/Sek | Bit-Extraktion | `GPS_DATE` / `GPS_TIME` | Datum / UTC |
 | **`0x0880`** | UNI-Sens / Vario Absolute Höhe | `int32_t` (32 Bit) | `0.01 m` (`cm`) | `* 1` | `RELATIVEALT` & `ALTITUDE` | `cm` (`0.01 m`) |
 | **`0x0B50`** | ESC Akkuspannung | Untere 16 Bit (`Bits 0–15`, `uint16_t`) | `0.01 V` (`10 mV`) | `* 10` | `MVOLT` | `mV` |
@@ -35,8 +35,8 @@ Alle ID-Bereiche (`0x...0` bis `0x...F`) werden durch die Index-Filterung (`filt
 
 Im Vergleich zu einer reinen 1:1-Protokollübersetzung enthält der Konverter folgende gezielte Anpassungen und technische Hinweise:
 
-* **FrSky GPS & RTH-Integration (`Sats` und `HEADING`):**  
-  Standard-FrSky-GPS-Sensoren übermitteln über den S.Port keine Satellitenanzahl (`Sats`) und keinen nutzbaren Kurs (`Heading`). Hier greift unsere RTH-Funktion direkt ein: Sobald der Home-Punkt erfolgreich gespeichert wurde (Home-Lock), setzt das System den Satellitenwert fest auf **`12` Sats** (bzw. inklusive Status-Offset für die Telemetrieanzeige) und gibt über das Feld **`HEADING`** die berechneten Lenk- und Steueranweisungen für den Sender aus.
+* **FrSky GPS & RTH-Integration (`Sats` und `GPS Home Bearing`):**  
+  Standard-FrSky-GPS-Sensoren übermitteln über den S.Port keine Satellitenanzahl (`Sats`) und keinen nutzbaren Kurs (`Homebearing`). Hier greift die RTH-Funktion direkt ein: Sobald der Home-Punkt erfolgreich gespeichert wurde (Home-Lock), setzt das System den Satellitenwert fest auf **`106` Sats** (bzw. inklusive Status-Offset für die Telemetrieanzeige) und gibt über das Feld **`GPS Homebearing`** die berechneten Lenk- und Steueranweisungen für den Sender aus.
 * **Begrenzte GPS-Auflösung und Wiederholrate über FrSky S.Port:**  
   Das FrSky-S.Port-Protokoll (`0x0800`) überträgt Längen- und Breitengrade (`LAT` / `LON`) in `1/600000` Grad, wobei die letzten zwei Stellen bei der Übertragung bzw. Umrechnung auf `00` gekappt werden. Dadurch entsteht eine deutlich gröbere örtliche Rasterung in Kombination mit einer niedrigen Wiederholrate (typischerweise `1 Hz`, abwechselnd für Breite und Länge). Im Vergleich zu einem direkt per UART angeschlossenen u-blox-GPS (`5 Hz` bis `10 Hz` mit voller Nachkomma-Auflösung) arbeitet RTH über den FrSky-Sensor daher gröber und träger – für größere Kreisradien (`100–150 m`) beim Segler reicht es aus, für enge Radien oder RC-Car-Tests ist ein direktes u-blox-GPS jedoch klar im Vorteil.
 * **Index-Filterung bei mehreren Sensoren am S.Port (`0x0xxI` vs. `0x0xx0`):**  
