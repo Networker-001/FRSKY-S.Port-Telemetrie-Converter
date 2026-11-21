@@ -71,6 +71,7 @@ This document lists the telemetry fields calculated by **openXsensor on RP2040**
 | **Remain** | *Not measured* | ELRS field exists but is not used currently (one byte only = `%`) | *not used* | `%` |
 | **Pitch** | `0.01 degree` | MPU6050 is installed (and `SCL`/`SDA` defined) | `pitch` | `Rad (1/10000)` |
 | **Roll** | `0.01 degree` | Same as above | `roll` | `Rad (1/10000)` |
+| **Yaw** | `0.01 degree` | RTH Stearing | `yaw` | `Rad (1/10000)` |
 | **Acc X** | `0.001 g` | MPU6050 is installed (and `SCL`/`SDA` defined) | *not transmitted* | — |
 | **Acc Y** | `0.001 g` | MPU6050 is installed (and `SCL`/`SDA` defined) | *not transmitted* | — |
 | **Acc Z** | `0.001 g` | MPU6050 is installed (and `SCL`/`SDA` defined) | *not transmitted* | — |
