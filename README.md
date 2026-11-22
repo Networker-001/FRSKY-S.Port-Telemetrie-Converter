@@ -5,7 +5,7 @@
 
 Die hier vorgestellte Lösung ermöglicht die Übertragung von Telemetriewerten von FrSky S.Port Sensoren zu Multiplex, Jeti REX, ELRS (CRSF), HoTT und weiteren Empfängern. Benötigt wird lediglich ein kleines **Waveshare RP2040-Zero** Board, das mit einem Widerstand zwischen Sensor und Empfänger geschaltet wird.
 
-**Schnellstart:** RP2040 per USB mit dem PC verbinden, die passende `.uf2`-Datei aus dem Ordner `Config` auf das Laufwerk kopieren – fertig.
+**Schnellstart:** RP2040 per USB mit dem PC verbinden, die passende `RTH_CRSF.uf2`-Datei aus dem Ordner `Config` auf das Laufwerk kopieren – fertig.
 
 > **[Networker-001/oXs_on_RP2040-add-ons/Config](https://github.com/Networker-001/oXs_on_RP2040-add-ons/tree/main/Config))**
 ---
